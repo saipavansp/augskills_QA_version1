@@ -74,13 +74,21 @@ def generate_mcqs(text, num_questions=5, difficulty="medium"):
         model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
 
         difficulty_specs = {
-            "easy": "Focus on basic concepts and direct facts. Questions should be straightforward with clear answers.",
-            "medium": "Include application of concepts and some analytical thinking. Questions should require understanding of relationships between ideas.",
-            "hard": "Create complex questions involving analysis, evaluation, and synthesis of multiple concepts. Include challenging distractors in answer choices."
+            "easy": "Focus on basic concepts and direct facts. Questions should be straightforward with exactly one correct answer and three clearly incorrect options.",
+            "medium": "Include application of concepts and analytical thinking. Each question must have exactly one correct answer and three plausible but definitely incorrect options.",
+            "hard": "Create complex questions involving analysis and synthesis of concepts. Maintain exactly one correct answer with three challenging but definitively incorrect distractors."
         }
 
         prompt = f"""
         Generate exactly {num_questions} multiple choice questions at {difficulty} difficulty level.
+
+        Critical Rules for Answer Choices:
+        1. Each question MUST have EXACTLY ONE correct answer
+        2. The other three options MUST be definitively incorrect
+        3. Avoid partially correct answers or "all of the above" options
+        4. Make incorrect options plausible but clearly wrong
+        5. Avoid overlapping or ambiguous answer choices
+        6. Ensure options are mutually exclusive
 
         Difficulty Guidelines:
         {difficulty_specs[difficulty]}
@@ -88,24 +96,28 @@ def generate_mcqs(text, num_questions=5, difficulty="medium"):
         Follow this exact JSON structure:
         [
             {{
-                "question_text": "Question here?",
-                "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
-                "correct_answer": 0,
-                "explanation": "Explanation here",
+                "question_text": "What is the capital of France?",
+                "choices": [
+                    "London (incorrect)",
+                    "Paris (correct)",
+                    "Berlin (incorrect)",
+                    "Madrid (incorrect)"
+                ],
+                "correct_answer": 1,
+                "explanation": "Paris is the capital city of France. While the other options are European capitals, they are capitals of different countries: London (UK), Berlin (Germany), and Madrid (Spain).",
                 "difficulty": "{difficulty}"
             }}
         ]
 
         Important Rules:
         1. Questions must match the specified {difficulty} difficulty level
-        2. Use double quotes for all strings
-        3. Include exactly 4 choices for each question
-        4. correct_answer must be 0-3
-        5. Ensure questions test different aspects of the content
-        6. Make distractors plausible but clearly incorrect
-        7. Explanations should be comprehensive for learning purposes
+        2. Each question must test a different concept
+        3. All options must be complete sentences or phrases
+        4. Avoid using "none of the above" or "all of the above"
+        5. Make each incorrect option independently wrong
+        6. Explanations must clearly state why the correct answer is right and why others are wrong
 
-        Generate questions based on this text: {text[:5000]}
+        Generate {num_questions} questions based on this text: {text[:5000]}
         """
 
         response = model.invoke(prompt)
