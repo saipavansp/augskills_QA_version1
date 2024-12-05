@@ -1,6 +1,6 @@
-streamlit
+streamlit~=1.40.2
 PyPDF2~=3.0.1
-langchain
+langchain~=0.3.9
 langchain-google-genai~=2.0.6
 google-generativeai
 faiss-cpu
@@ -8,3 +8,4 @@ python-docx~=1.1.2
 beautifulsoup4~=4.12.3
 requests~=2.32.3
 protobuf~=5.29.1
+langchain-community~=0.3.9
